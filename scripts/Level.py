@@ -12,7 +12,12 @@ class level:
         self.rect = self.image.get_rect()
         self.clicked = False
         self.level_no = state
-    
+    def check(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return True
+        return False
     def draw(self, screen):
         if self.state == 0:
             self.image = pygame.transform.scale(self.image, (500, 300))
@@ -41,7 +46,7 @@ class level:
             image_width, image_height = self.image.get_size()
             position = ((screen_width - 600), (screen_height - image_height) // 2)
             screen.blit(self.image, position)
-            time.sleep(0.2)
+            # time.sleep(0.2)
             self.rect.topleft = position
             action = False
             pos = pygame.mouse.get_pos()

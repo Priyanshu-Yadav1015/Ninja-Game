@@ -3,7 +3,7 @@ import sys
 import math
 import random
 import pygame
-from scripts.Buttons import ScaledButton
+from scripts.Buttons import Button
 
 from scripts.utils import load_image, load_images, Animation
 from scripts.entities import PhysicsEntity, Player, Enemy
@@ -69,7 +69,14 @@ class Game:
         
         self.screenshake = 0
         self.paused = False
-        
+    
+    def check(self):
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return True
+        return False  
+    
     def load_level(self, map_id):
         self.tilemap.load('data/maps/' + str(map_id) + '.json')
         
@@ -84,7 +91,6 @@ class Game:
                 self.player.air_time = 0
             else:
                 self.enemies.append(Enemy(self, spawner['pos'], (8, 15)))
-            
         self.projectiles = []
         self.particles = []
         self.sparks = []
@@ -100,8 +106,26 @@ class Game:
         pygame.mixer.music.play(-1)
         
         self.sfx['ambience'].play(-1)
-        
+        resume=Button(1000, 400, pygame.transform.scale(pygame.image.load('data/images/START.png'), (200, 100)))
+        quit=Button(1000, 700, pygame.transform.scale(pygame.image.load('data/images/Quit.png'), (200, 100)))
         while True:
+            if self.paused:
+                pygame.font.init()
+                if resume.draw(self.screen):
+                    self.paused = False
+                if quit.draw(self.screen):
+                    return
+                pygame.display.update()
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_z:
+                            self.paused = False
+                        if event.key == pygame.K_ESCAPE:
+                            return
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
+                continue
             self.display.fill((0, 100, 0, 0))
             self.display_2.blit(self.assets['background'], (0, 0))
             
@@ -188,7 +212,6 @@ class Game:
                     particle.pos[0] += math.sin(particle.animation.frame * 0.035) * 0.3
                 if kill:
                     self.particles.remove(particle)
-            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -205,13 +228,15 @@ class Game:
                         self.player.dash()
                     if event.key == pygame.K_z:
                         self.paused = True
+                    if event.key == pygame.K_ESCAPE:
+                        return
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT:
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
-                    if event.key == pygame.K_z:
-                        self.paused = False
+                    # if event.key == pygame.K_z:
+                    #     self.paused = False
                         
             if self.transition:
                 transition_surf = pygame.Surface(self.display.get_size())
@@ -225,6 +250,10 @@ class Game:
             self.screen.blit(pygame.transform.scale(self.display_2, self.screen.get_size()), screenshake_offset)
             pygame.display.update()
             self.clock.tick(60)
+            # for event in pygame.event.get():
+            #     if event.type == pygame.KEYDOWN:
+            #         if event.key == pygame.K_ESCAPE:
+            #             return
 
 def run_level():
     print("running level")

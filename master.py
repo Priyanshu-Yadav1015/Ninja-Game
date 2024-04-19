@@ -27,6 +27,7 @@ class Master:
         screen_height = 1080
 
         screen = pygame.display.set_mode((screen_width, screen_height))
+        pygame.display.set_caption('My Ninja')
 
 
         start_img = pygame.transform.scale(pygame.image.load('data/images/START.png'),(700,300))
@@ -47,10 +48,19 @@ class Master:
                     time.sleep(0.2)
                 if exit_button.draw(screen):
                     run = False
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_ESCAPE:
+                            run = False
+
             elif present=="level_selector":
                 screen.fill((205, 247, 246))
                 for level in levels:
                     level.draw(screen)
+                    if level.check():
+                        present="main_menu"
+                        continue
+                    # time.sleep(0.2)
 
                 right_button = Button(screen.get_width()-100, screen.get_height()//2, pygame.transform.scale(pygame.image.load('data/images/arrow/right-arrow.png'), (50, 50))).draw(screen)
                 left_button = Button(100, screen.get_height()//2, pygame.transform.scale(pygame.image.load('data/images/arrow/left-arrow.png'), (50, 50))).draw(screen)
@@ -59,34 +69,36 @@ class Master:
                         i.state+=1
                         if i.state==len(levels)-1:
                             i.state=-1
+                    time.sleep(0.2)
                 if right_button:
                     for i in levels:
                         i.state-=1
                         if i.state==-2:
                             i.state=len(levels)-2
+                    time.sleep(0.2)
+                # print("working")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         run = False
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_LEFT:
-                            for i in levels:
-                                i.state+=1
-                                if i.state==len(levels)-1:
-                                    i.state=-1
-                        if event.key == pygame.K_RIGHT:
-                            for i in levels:
-                                i.state-=1
-                                if i.state==-2:
-                                    i.state=len(levels)-2
-            elif present=="game":
-                pass
+                    # if event.type == pygame.KEYDOWN:
+                    #     print("left")
+                    #     if event.key == pygame.K_LEFT:
+                    #         for i in levels:
+                    #             i.state+=1
+                    #             if i.state==len(levels)-1:
+                    #                 i.state=-1
+                    #         time.sleep(0.2)
+                    #     if event.key == pygame.K_RIGHT:
+                    #         print("right")
+                    #         for i in levels:
+                    #             i.state-=1
+                    #             if i.state==-2:
+                    #                 i.state=len(levels)-2
+                    #         time.sleep(0.2)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        main_menu = True
             pygame.display.update()
 
 Master().run()
